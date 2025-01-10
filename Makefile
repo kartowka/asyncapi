@@ -1,5 +1,7 @@
-build :
-	@go build -o dist/api cmd/apiserver/main.go
+build : clean
+	@go build -o bin/api cmd/api/main.go
+clean:
+	@rm -rf bin
 db_create_migration :
 	migrate create -ext sql -dir migrations -seq $(name)
 db_migrate:

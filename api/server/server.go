@@ -31,10 +31,15 @@ func (s *Server) Ping() http.HandlerFunc {
 		return nil
 	})
 }
-func (s *Server) Run(ctx context.Context) error {
+func (s *Server) router() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", s.Ping())
 	mux.HandleFunc("POST /signup", s.signupHandler())
+	return mux
+}
+func (s *Server) Run(ctx context.Context) error {
+	mux := s.router()
+
 	middleware := NewLoggerMiddleware(s.logger)
 	server := &http.Server{
 		Addr:    net.JoinHostPort("", s.config.PORT),
