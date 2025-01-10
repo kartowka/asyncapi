@@ -27,7 +27,7 @@ func run() error {
 	}
 	jsonHandler := slog.NewJSONHandler(os.Stdout, nil)
 	logger := slog.New(jsonHandler)
-	db, err := store.NewMySQLDb(cfg)
+	db, err := store.NewDb(cfg)
 	if err != nil {
 		return err
 	}
