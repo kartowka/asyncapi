@@ -2,30 +2,31 @@ package store
 
 import (
 	"context"
-	"database/sql"
 	"encoding/base64"
 	"fmt"
 	"time"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type UserStore struct {
-	db *sqlx.DB
+	db *gorm.DB
 }
 
-func NewUserStore(db *sql.DB) *UserStore {
+func NewUserStore(db *gorm.DB) *UserStore {
 	return &UserStore{
-		db: sqlx.NewDb(db, "mysql"),
+		db: db,
 	}
 }
 
 type User struct {
-	Id                   int       `db:"id"`
-	Email                string    `db:"email"`
-	HashedPasswordBase64 string    `db:"hashed_password"`
-	CreatedAt            time.Time `db:"created_at"`
+	ID                   uint      `gorm:"primaryKey"`
+	UUID                 uuid.UUID `gorm:"type:char(36);primary_key"`
+	Email                string    `gorm:"column:email;unique"`
+	HashedPasswordBase64 string    `gorm:"column:hashed_password"`
+	CreatedAt            time.Time `gorm:"column:created_at"`
 }
 
 func (u *User) ComparePassword(password string) error {
@@ -41,35 +42,33 @@ func (u *User) ComparePassword(password string) error {
 }
 
 func (s *UserStore) CreateUser(ctx context.Context, email, password string) (*User, error) {
-	const dml = `INSERT INTO users (email, hashed_password) VALUES (?, ?)`
-
-	// Hash the password
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, fmt.Errorf("could not hash password: %w", err)
 	}
 	hashedPasswordBase64 := base64.StdEncoding.EncodeToString(bytes)
-
-	// Execute the INSERT statement
-	_, err = s.db.ExecContext(ctx, dml, email, hashedPasswordBase64)
-	if err != nil {
+	uuid := uuid.New()
+	user := User{Email: email, HashedPasswordBase64: hashedPasswordBase64, UUID: uuid}
+	if err := s.db.WithContext(ctx).Create(&user).Error; err != nil {
 		return nil, fmt.Errorf("could not create user: %w", err)
 	}
 	return nil, nil
 }
 
 func (s *UserStore) ByEmail(ctx context.Context, email string) (*User, error) {
-	const query = `SELECT * FROM users WHERE email = ?`
 	var user User
-	if err := s.db.GetContext(ctx, &user, query, email); err != nil {
+	err := s.db.WithContext(ctx).First(&user, "email = ?", email).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
 		return nil, fmt.Errorf("could not get user: %w", err)
 	}
 	return &user, nil
 }
 func (s *UserStore) ByID(ctx context.Context, userID int) (*User, error) {
-	const query = `SELECT * FROM users WHERE id = ?`
 	var user User
-	if err := s.db.GetContext(ctx, &user, query, userID); err != nil {
+	if err := s.db.WithContext(ctx).First(&user, userID).Error; err != nil {
 		return nil, fmt.Errorf("could not get user: %w", err)
 	}
 	return &user, nil
