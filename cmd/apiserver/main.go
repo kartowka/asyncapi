@@ -10,6 +10,7 @@ import (
 
 	"github.com/antfley/asyncapi/api/server"
 	"github.com/antfley/asyncapi/config"
+	"github.com/antfley/asyncapi/store"
 )
 
 func main() {
@@ -26,7 +27,12 @@ func run() error {
 	}
 	jsonHandler := slog.NewJSONHandler(os.Stdout, nil)
 	logger := slog.New(jsonHandler)
-	server := server.New(cfg, logger)
+	db, err := store.NewMySQLDb(cfg)
+	if err != nil {
+		return err
+	}
+	dataStore := store.New(db)
+	server := server.New(cfg, logger, dataStore)
 	if err := server.Run(ctx); err != nil {
 		return err
 	}

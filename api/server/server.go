@@ -9,17 +9,20 @@ import (
 	"time"
 
 	"github.com/antfley/asyncapi/config"
+	"github.com/antfley/asyncapi/store"
 )
 
 type Server struct {
 	config *config.Config
 	logger *slog.Logger
+	store  *store.Store
 }
 
-func New(config *config.Config, logger *slog.Logger) *Server {
+func New(config *config.Config, logger *slog.Logger, store *store.Store) *Server {
 	return &Server{
 		config: config,
 		logger: logger,
+		store:  store,
 	}
 }
 func (s *Server) Ping() http.HandlerFunc {
@@ -30,7 +33,8 @@ func (s *Server) Ping() http.HandlerFunc {
 }
 func (s *Server) Run(ctx context.Context) error {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", s.Ping())
+	mux.HandleFunc("GET /", s.Ping())
+	mux.HandleFunc("POST /signup", s.signupHandler())
 	middleware := NewLoggerMiddleware(s.logger)
 	server := &http.Server{
 		Addr:    net.JoinHostPort("", s.config.PORT),
