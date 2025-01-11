@@ -35,5 +35,7 @@ func TestJWTManager(t *testing.T) {
 	refreshTokenIssuer, err := tokenPair.RefreshToken.Claims.GetIssuer()
 	require.NoError(t, err)
 	require.Equal(t, "http://localhost:"+cfg.PORT, refreshTokenIssuer)
-
+	parsedAccessToken, err := jwtManager.Parse(tokenPair.AccessToken.Raw)
+	require.NoError(t, err)
+	require.Equal(t, tokenPair.AccessToken.Raw, parsedAccessToken.Raw)
 }
