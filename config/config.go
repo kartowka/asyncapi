@@ -25,7 +25,6 @@ func (c *Config) DatabaseURL() string {
 	)
 }
 func New() (*Config, error) {
-
 	cfg, err := env.ParseAs[Config]()
 	if err != nil {
 		return nil, err
