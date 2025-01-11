@@ -38,4 +38,7 @@ func TestJWTManager(t *testing.T) {
 	parsedAccessToken, err := jwtManager.Parse(tokenPair.AccessToken.Raw)
 	require.NoError(t, err)
 	require.Equal(t, tokenPair.AccessToken.Raw, parsedAccessToken.Raw)
+	parsedRefreshToken, err := jwtManager.Parse(tokenPair.RefreshToken.Raw)
+	require.NoError(t, err)
+	require.Equal(t, tokenPair.RefreshToken.Raw, parsedRefreshToken.Raw)
 }
