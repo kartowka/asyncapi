@@ -50,3 +50,4 @@ go.work
 dist/
 bin
 .vscode/
+.envrc

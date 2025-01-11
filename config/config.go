@@ -2,19 +2,19 @@ package config
 
 import (
 	"fmt"
-	"os"
 
-	"github.com/joho/godotenv"
+	"github.com/caarlos0/env/v11"
 )
 
 type Config struct {
-	PORT         string
-	DB_HOST      string
-	DB_PORT      string
-	DB_USER      string
-	DB_PASS      string
-	DB_NAME      string
-	DATABASE_URL string
+	PORT         string `env:"PORT"`
+	DB_HOST      string `env:"DB_HOST"`
+	DB_PORT      string `env:"DB_PORT"`
+	DB_USER      string `env:"DB_USER"`
+	DB_PASS      string `env:"DB_PASS"`
+	DB_NAME      string `env:"DB_NAME"`
+	DATABASE_URL string `env:"DATABASE_URL"`
+	JWT_SECRET   string `env:"JWT_SECRET"`
 }
 
 func (c *Config) DatabaseURL() string {
@@ -25,17 +25,10 @@ func (c *Config) DatabaseURL() string {
 	)
 }
 func New() (*Config, error) {
-	err := godotenv.Load()
-	if err != nil {
-		return nil, fmt.Errorf("failed to load config: %w", err)
-	}
 
-	return &Config{
-		PORT:    os.Getenv("PORT"),
-		DB_HOST: os.Getenv("DB_HOST"),
-		DB_PORT: os.Getenv("DB_PORT"),
-		DB_USER: os.Getenv("DB_USER"),
-		DB_PASS: os.Getenv("DB_PASS"),
-		DB_NAME: os.Getenv("DB_NAME"),
-	}, nil
+	cfg, err := env.ParseAs[Config]()
+	if err != nil {
+		return nil, err
+	}
+	return &cfg, nil
 }
