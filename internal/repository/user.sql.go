@@ -52,7 +52,7 @@ FROM users
 WHERE id = ?
 `
 
-func (q *Queries) GetUserById(ctx context.Context, id uint64) (User, error) {
+func (q *Queries) GetUserById(ctx context.Context, id uint) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUserById, id)
 	var i User
 	err := row.Scan(

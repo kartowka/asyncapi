@@ -9,6 +9,10 @@ sql:
         package: 'repository'
         out: 'internal/repository'
         overrides:
+          - column: '*.user_id'
+            go_type: 'uint'
+          - column: '*.id'
+            go_type: 'uint'
           - column: '*.uuid'
             go_type:
               import: 'github.com/google/uuid'

@@ -13,16 +13,18 @@ import (
 )
 
 type Server struct {
-	config *config.Config
-	logger *slog.Logger
-	store  *store.Store
+	config     *config.Config
+	logger     *slog.Logger
+	store      *store.Store
+	JWTManager *JWTManager
 }
 
-func New(config *config.Config, logger *slog.Logger, store *store.Store) *Server {
+func New(config *config.Config, logger *slog.Logger, store *store.Store, jwtManager *JWTManager) *Server {
 	return &Server{
-		config: config,
-		logger: logger,
-		store:  store,
+		config:     config,
+		logger:     logger,
+		store:      store,
+		JWTManager: jwtManager,
 	}
 }
 func (s *Server) Ping() http.HandlerFunc {
@@ -35,6 +37,7 @@ func (s *Server) router() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", s.Ping())
 	mux.HandleFunc("POST /signup", s.signupHandler())
+	mux.HandleFunc("POST /signin", s.signinHandler())
 	return mux
 }
 func (s *Server) Run(ctx context.Context) error {

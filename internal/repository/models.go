@@ -11,14 +11,15 @@ import (
 )
 
 type RefreshToken struct {
-	UserID      uint64    `json:"user_id"`
+	ID          uint      `json:"id"`
+	UserID      uint      `json:"user_id"`
 	HashedToken string    `json:"hashed_token"`
 	CreatedAt   time.Time `json:"created_at"`
 	ExpiresAt   time.Time `json:"expires_at"`
 }
 
 type User struct {
-	ID             uint64    `json:"id"`
+	ID             uint      `json:"id"`
 	Uuid           uuid.UUID `json:"uuid"`
 	Email          string    `json:"email"`
 	HashedPassword string    `json:"hashed_password"`

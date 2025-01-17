@@ -48,7 +48,7 @@ func (s *UserStore) ByEmail(ctx context.Context, email string) (*repository.User
 	}
 	return &user, nil
 }
-func (s *UserStore) ByID(ctx context.Context, id uint64) (*repository.User, error) {
+func (s *UserStore) ByID(ctx context.Context, id uint) (*repository.User, error) {
 	var user repository.User
 	user, err := s.repo.GetUserById(ctx, id)
 	if err != nil {
