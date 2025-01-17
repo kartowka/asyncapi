@@ -1,12 +1,12 @@
 package store
 
-import "gorm.io/gorm"
+import "database/sql"
 
 type Store struct {
 	Users *UserStore
 }
 
-func New(db *gorm.DB) *Store {
+func New(db *sql.DB) *Store {
 	return &Store{
 		Users: NewUserStore(db),
 	}
