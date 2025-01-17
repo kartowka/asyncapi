@@ -17,6 +17,7 @@ type Server struct {
 	logger     *slog.Logger
 	store      *store.Store
 	JWTManager *JWTManager
+	middleware []func(http.Handler) http.Handler
 }
 
 func New(config *config.Config, logger *slog.Logger, store *store.Store, jwtManager *JWTManager) *Server {
@@ -25,6 +26,7 @@ func New(config *config.Config, logger *slog.Logger, store *store.Store, jwtMana
 		logger:     logger,
 		store:      store,
 		JWTManager: jwtManager,
+		middleware: []func(http.Handler) http.Handler{},
 	}
 }
 func (s *Server) Ping() http.HandlerFunc {
@@ -36,17 +38,27 @@ func (s *Server) Ping() http.HandlerFunc {
 func (s *Server) router() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", s.Ping())
-	mux.HandleFunc("POST /signup", s.signupHandler())
-	mux.HandleFunc("POST /signin", s.signinHandler())
+	mux.HandleFunc("POST /auth/signup", s.signupHandler())
+	mux.HandleFunc("POST /auth/signin", s.signinHandler())
 	return mux
+}
+func (s *Server) Use(mw func(http.Handler) http.Handler) {
+	s.middleware = append(s.middleware, mw)
+}
+func (s *Server) applyMiddleware(h http.Handler) http.Handler {
+	for _, mw := range s.middleware {
+		h = mw(h)
+	}
+	return h
 }
 func (s *Server) Run(ctx context.Context) error {
 	mux := s.router()
-
-	middleware := NewLoggerMiddleware(s.logger)
+	s.Use(NewLoggerMiddleware(s.logger))
+	s.Use(NewAuthMiddleware(*s.JWTManager, s.store.Users))
+	handler := s.applyMiddleware(mux)
 	server := &http.Server{
 		Addr:    net.JoinHostPort("", s.config.PORT),
-		Handler: middleware(mux),
+		Handler: handler,
 	}
 	go func() {
 		s.logger.Info("server started", "port", s.config.PORT)
