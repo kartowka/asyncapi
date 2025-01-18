@@ -1,0 +1,28 @@
+GET http://localhost:3000/ping
+Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIiwic3ViIjoiMSIsImV4cCI6MTczNzE4NjI0MywiaWF0IjoxNzM3MTg1MzQzfQ.u-FL4US-HrPUzrIwVfhv1ZOniI635gYNvHencusqHkM"
+
+###
+
+POST http://localhost:3000/auth/signin
+Content-Type: application/json
+
+{
+    "email": "test1@test.com",
+    "password": "secret"
+}
+
+###
+POST http://localhost:3000/auth/signup
+Content-Type: application/json
+
+{
+    "email": "test@test.com",
+    "password": "secret"
+}
+###
+POST http://localhost:3000/auth/refresh
+Content-Type: application/json
+
+{
+    "refresh_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMCIsInN1YiI6IjEiLCJleHAiOjE3Mzk3Nzc1ODEsImlhdCI6MTczNzE4NTU4MX0.P_6pTXUvWE49uY5rIdLgOcLK3-GgqwuD3_VTiBU_r_k"
+}

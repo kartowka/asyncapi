@@ -40,6 +40,7 @@ func (s *Server) router() *http.ServeMux {
 	mux.HandleFunc("GET /", s.Ping())
 	mux.HandleFunc("POST /auth/signup", s.signupHandler())
 	mux.HandleFunc("POST /auth/signin", s.signinHandler())
+	mux.HandleFunc("POST /auth/refresh", s.refreshTokenHandler())
 	return mux
 }
 func (s *Server) Use(mw func(http.Handler) http.Handler) {

@@ -63,3 +63,17 @@ func (s *RefreshTokenStore) DeleteUserTokens(ctx context.Context, id uint) (sql.
 	}
 	return result, nil
 }
+func (s *RefreshTokenStore) GetByToken(ctx context.Context, user_id uint, token *jwt.Token) (*repository.RefreshToken, error) {
+	base64TokenHash, err := s.getBase64HashFromToken(token)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get base64 hash from token: %w", err)
+	}
+	rt, err := s.repo.GetRefreshTokenByUserIDAndToken(ctx, repository.GetRefreshTokenByUserIDAndTokenParams{
+		UserID:      user_id,
+		HashedToken: base64TokenHash,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get refresh token by user id and token: %w", err)
+	}
+	return &rt, nil
+}

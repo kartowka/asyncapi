@@ -53,3 +53,28 @@ func (q *Queries) GetRefreshTokenByID(ctx context.Context, id uint) (RefreshToke
 	)
 	return i, err
 }
+
+const getRefreshTokenByUserIDAndToken = `-- name: GetRefreshTokenByUserIDAndToken :one
+SELECT id, user_id, hashed_token, created_at, expires_at
+FROM refresh_tokens
+WHERE user_id = ?
+    AND hashed_token = ?
+`
+
+type GetRefreshTokenByUserIDAndTokenParams struct {
+	UserID      uint   `json:"user_id"`
+	HashedToken string `json:"hashed_token"`
+}
+
+func (q *Queries) GetRefreshTokenByUserIDAndToken(ctx context.Context, arg GetRefreshTokenByUserIDAndTokenParams) (RefreshToken, error) {
+	row := q.db.QueryRowContext(ctx, getRefreshTokenByUserIDAndToken, arg.UserID, arg.HashedToken)
+	var i RefreshToken
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.HashedToken,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+	)
+	return i, err
+}
